@@ -40,3 +40,8 @@ class CrossingRepository(BaseRepository):
         query = f"SELECT {self.table_name}.* FROM {self.table_name} WHERE id IN ({', '.join(map(str, crossings_ids))})"
         result = await self.execute_fetchall(query)
         return [Crossing(**crossing) for crossing in result]
+
+    # async def get_users_by_crossing_id(self, crossing_id: int) -> list[User]:
+    #     query = f"SELECT {self.table_name}.* FROM {self.table_name} WHERE id IN ({', '.join(map(str, crossings_ids))})"
+    #     result = await self.execute_fetchall(query)
+    #     return [Crossing(**crossing) for crossing in result]

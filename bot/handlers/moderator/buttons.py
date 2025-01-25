@@ -20,7 +20,7 @@ def send_hello_types_keyboard(message_templates: list[MessageTemplate]):
 def send_crossings_keyboard(crossings: list[Crossing]):
     builder = InlineKeyboardBuilder()
     for crossing in crossings:
-        builder.button(text=crossing.name, callback_data=f"crossing_{crossing.id}")
+        builder.button(text=crossing.name, callback_data=f"choose_crossing_{crossing.id}")
     builder.adjust(1)
     keyboard = builder.as_markup()
     return keyboard

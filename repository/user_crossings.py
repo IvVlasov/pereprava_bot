@@ -27,3 +27,8 @@ class UserCrossingsRepository(BaseRepository):
         )
         result = await self.execute_fetchall(query)
         return [row["crossings_id"] for row in result]
+
+    async def get_user_crossings_by_ids(self, crossing_id: int) -> list[int]:
+        query = f"SELECT DISTINCT user_chat_id FROM {self.table_name} WHERE crossings_id = {crossing_id}"
+        result = await self.execute_fetchall(query)
+        return [row["user_chat_id"] for row in result]

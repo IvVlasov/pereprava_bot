@@ -51,9 +51,18 @@ async def subscribe_handler(message: types.Message, state: FSMContext, user: Use
     await state.set_state(UserCrossingsStates.crossing_choice)
     text = "Выберите переправы, на которые вы хотите подписаться на уведомления"
     crossings_repository = CrossingRepository()
-    crossings = await crossings_repository.get_all_crossings()
-    await state.update_data(crossings=crossings)
-    btn = buttons.user_crossings_keyboard(crossings)
+    user_crossings_repository = UserCrossingsRepository()
+    user_crossings_ids = await user_crossings_repository.get_user_crossings_ids(
+        user.chat_id
+    )
+    user_crossings = []
+    all_crossings = await crossings_repository.get_all_crossings()
+    for crossing in all_crossings:
+        if crossing.id in user_crossings_ids:
+            crossing.name = f"✅ {crossing.name}"
+        user_crossings.append(crossing)
+    await state.update_data(crossings=user_crossings)
+    btn = buttons.user_crossings_keyboard(user_crossings)
     await message.answer(text, reply_markup=btn)
 
 
@@ -66,7 +75,10 @@ async def crossing_choice_handler(callback: types.CallbackQuery, state: FSMConte
     crossings = data.get("crossings")
     for crossing in crossings:
         if crossing.id == crossing_id:
-            crossing.name = f"✅ {crossing.name}"
+            if crossing.name.startswith("✅"):
+                crossing.name = crossing.name[2:]
+            else:
+                crossing.name = f"✅ {crossing.name}"
             break
     await state.update_data(crossings=crossings)
     btn = buttons.user_crossings_keyboard(crossings)
