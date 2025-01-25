@@ -1,13 +1,13 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
+from bot.handlers.filter import ModeratorFilter
 
 from bot.constants import ModeratorMenuButtons, UserMenuButtons
 from bot.models import Crossing
+from aiogram import types
 
 
 def admin_menu_keyboard():
     builder = InlineKeyboardBuilder()
-    # builder.button(text='Создать ссылку модератора', callback_data='create_link')
-    # builder.button(text='Добавить переправу', callback_data='add_crossing')
     builder.button(text="Настройки", callback_data="settings")
 
     builder.adjust(1)
@@ -22,7 +22,11 @@ def start_keyboard():
     return keyboard
 
 
-def user_menu_keyboard():
+async def user_menu_keyboard(message: types.Message):
+    moderator_filter = ModeratorFilter()
+    is_moderator = await moderator_filter(message)
+    if is_moderator:
+        return manager_menu_keyboard()
     builder = ReplyKeyboardBuilder()
     for button in UserMenuButtons:
         builder.button(text=button.value)

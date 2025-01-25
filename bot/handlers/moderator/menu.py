@@ -5,7 +5,7 @@ from bot.constants import ModeratorMenuButtons
 from bot.handlers.filter import ModeratorFilter
 from bot.handlers.moderator import buttons
 from bot.handlers.moderator.states import SendMessageStates
-from bot.models.messages import AppMessages
+from bot.services.message_service import get_message_service
 from repository import CrossingRepository
 
 menu_router = Router()
@@ -27,8 +27,10 @@ async def choose_crossing(callback: types.CallbackQuery, state: FSMContext):
     crossing_id = int(callback.data.split("_")[-1])
     await state.set_state(SendMessageStates.crossing)
     await state.update_data(crossing_id=crossing_id)
+    app_messages = await get_message_service()
     await callback.message.answer(
-        AppMessages.message_types, reply_markup=buttons.send_message_types_keyboard()
+        app_messages.message_types,
+        reply_markup=buttons.send_message_types_keyboard(),
     )
 
 
@@ -46,6 +48,8 @@ async def close_crossing_message_confirm(
 
 @menu_router.message(ModeratorFilter(), F.text == ModeratorMenuButtons.SETTINGS.value)
 async def settings(message: types.Message, state: FSMContext):
+    app_messages = await get_message_service()
     await message.answer(
-        AppMessages.message_types, reply_markup=buttons.send_message_types_keyboard()
+        app_messages.message_types,
+        reply_markup=buttons.send_message_types_keyboard()
     )

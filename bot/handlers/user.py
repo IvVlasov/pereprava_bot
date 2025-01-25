@@ -6,7 +6,7 @@ from bot import buttons
 from bot.constants import UserMenuButtons
 from bot.handlers.filter import ModeratorFilter
 from bot.models import Crossing, User
-from bot.models.messages import AppMessages
+from bot.services.message_service import get_message_service
 from repository import (CrossingRepository, UserCrossingsRepository,
                         UserRepository)
 
@@ -29,7 +29,8 @@ class ModeratorCrossingsStates(StatesGroup):
 async def start_moderator(message: types.Message, state: FSMContext):
     user_repository = UserRepository()
     await user_repository.create_user(User(chat_id=message.chat.id))
-    text, btn = AppMessages.start_user, buttons.manager_menu_keyboard()
+    app_messages = await get_message_service()
+    text, btn = app_messages.start_moderator, await buttons.user_menu_keyboard(message)
     await message.answer(text, reply_markup=btn)
     await state.clear()
 
@@ -38,7 +39,8 @@ async def start_moderator(message: types.Message, state: FSMContext):
 async def start(message: types.Message, state: FSMContext):
     user_repository = UserRepository()
     await user_repository.create_user(User(chat_id=message.chat.id))
-    text, btn = AppMessages.start_user, buttons.user_menu_keyboard()
+    app_messages = await get_message_service()
+    text, btn = app_messages.start_user, await buttons.user_menu_keyboard(message)
     text = text.format(user_name=message.from_user.full_name)
     await message.answer(text, reply_markup=btn)
     await state.clear()
@@ -86,7 +88,10 @@ async def save_crossings_handler(callback: types.CallbackQuery, state: FSMContex
     )
     await callback.message.delete()
     text = "Переправы успешно сохранены.\n\nВы можете изменить их в разделе 'Настройки'"
-    await callback.message.answer(text, reply_markup=buttons.user_menu_keyboard())
+    await callback.message.answer(
+        text,
+        reply_markup=await buttons.user_menu_keyboard(callback.message),
+    )
     await state.clear()
 
 
@@ -103,7 +108,7 @@ async def crossing_cameras_handler(
     print(crossings)
     if not crossings:
         text = "У вас нет сохраненных переправ. Перейдите в настройки и выберите переправы."
-        btn = buttons.user_menu_keyboard()
+        btn = await buttons.user_menu_keyboard(message)
     else:
         text = "Выберите переправу, чтобы посмотреть камеры"
         btn = buttons.user_camera_crossings_keyboard(crossings)

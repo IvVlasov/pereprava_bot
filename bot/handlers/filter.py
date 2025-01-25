@@ -12,6 +12,6 @@ class ModeratorFilter(Filter):
         chat_member = await bot.get_chat_member(settings.CHANNEL_ID, msg.from_user.id)
         return chat_member.status in [
             ChatMemberStatus.ADMINISTRATOR,
-            # ChatMemberStatus.CREATOR,
+            ChatMemberStatus.CREATOR,
             ChatMemberStatus.MEMBER,
         ]

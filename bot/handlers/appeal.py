@@ -6,9 +6,10 @@ from bot.constants import ModeratorMenuButtons, UserMenuButtons
 from bot.handlers.filter import ModeratorFilter
 from bot.handlers.states import AppealStates
 from bot.models.appeal import Appeal
-from bot.models.messages import AppMessages
+from bot.services.message_service import get_message_service
 from repository import AppealRepository
 from settings import get_settings
+from aiogram.enums.chat_type import ChatType
 
 appeal_router = Router()
 
@@ -19,13 +20,15 @@ appeal_router = Router()
     )
 )
 async def appeal_message(message: types.Message, state: FSMContext):
-    await message.answer(AppMessages.appeal_message)
+    app_messages = await get_message_service()
+    await message.answer(app_messages.appeal_message)
     await state.set_state(AppealStates.appeal)
 
 
 @appeal_router.message(AppealStates.appeal)
 async def appeal_message_handler(message: types.Message, state: FSMContext):
-    await message.answer(AppMessages.appeal_message_success)
+    app_messages = await get_message_service()
+    await message.answer(app_messages.appeal_message_success)
     await send_appeal_message(message)
     await state.clear()
 
@@ -44,16 +47,16 @@ async def send_appeal_message(message: types.Message):
     await appeal_repository.create_appeal(appeal)
 
 
-@appeal_router.channel_post()
+@appeal_router.message()
 async def channel_post(message: types.Message):
-    if not message.reply_to_message:
+    if not message.reply_to_message and message.chat.type == ChatType.CHANNEL:
         return
 
     reply_id = message.reply_to_message.message_id
     appeal_repository = AppealRepository()
     appeal = await appeal_repository.get_appeal(reply_id)
     if appeal.is_answered:
-        await message.reply(AppMessages.appeal_message_already_answered)
+        await message.reply("Обращение уже отвечено.")
         return
 
     appeal.is_answered = True
@@ -61,4 +64,4 @@ async def channel_post(message: types.Message):
     await bot.send_message(
         appeal.chat_id, "Ответ на ваше обращение:\n\n %s" % message.text
     )
-    await message.reply(AppMessages.appeal_message_answered)
+    await message.reply("Обращение отвечено.")

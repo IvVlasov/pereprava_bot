@@ -6,6 +6,7 @@ from repository.crossing_repository import CrossingRepository
 from repository.message_templates import MessageTemplatesRepository
 from repository.user_crossings import UserCrossingsRepository
 from repository.user_repository import UserRepository
+from repository.messages import MessagesRepository
 
 
 async def create_tables():
@@ -21,4 +22,5 @@ __all__ = [
     "BaseRepository",
     "MessageTemplatesRepository",
     "UserCrossingsRepository",
+    "MessagesRepository"
 ]

@@ -11,6 +11,8 @@ from bot.models.manager_link import ManagerLink
 from bot.models.message_template import MessageTemplate, MessageTemplateType
 from repository import CrossingRepository, MessageTemplatesRepository
 from settings import get_settings
+from repository.messages import MessagesRepository
+from bot.models.messages import Message
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +36,18 @@ class ExcelSettings:
                 await self.save_message_templates(sheet_obj)
             elif sheet_name.strip() == "Статические сообщения":
                 await self.save_static_message_templates(sheet_obj)
+            elif sheet_name.strip() == "Сообщения":
+                await self.save_messages(sheet_obj)
         return True
         # except Exception as e:
         #     logger.error(f"Error parsing settings excel: {e}")
         #     return False
+
+    async def save_messages(self, sheet_obj: Worksheet):
+        messages_repository = MessagesRepository()
+        for row in sheet_obj.iter_rows(min_row=2, values_only=True):
+            message = Message(key=row[0], name=row[1], text=row[2])
+            await messages_repository.create_message(message)
 
     def _get_message_template_type(
         self, message_template_name: str
@@ -60,7 +70,6 @@ class ExcelSettings:
 
     async def save_static_message_templates(self, sheet_obj: Worksheet):
         for row in sheet_obj.iter_rows(min_row=2, values_only=True):
-            print(row)
             message_template = MessageTemplate(
                 name=row[0],
                 template=row[1],
