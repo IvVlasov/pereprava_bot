@@ -48,7 +48,7 @@ async def close_crossing_message_now(message: types.Message, state: FSMContext):
 )
 async def close_crossing_message_manual(message: types.Message, state: FSMContext):
     await state.set_state(CloseCrossingStates.time)
-    await message.answer("Укажите время закрытия переправы в формате ЧЧ:ММ")
+    await message.answer("Укажите время закрытия переправы в формате ЧЧ:ММ", reply_markup=types.ReplyKeyboardRemove())
 
 
 @close_crossing_router.message(CloseCrossingStates.time)
@@ -56,11 +56,11 @@ async def close_crossing_message_time(message: types.Message, state: FSMContext)
     try:
         datetime.strptime(message.text, "%H:%M")
     except Exception:
-        await message.answer("Время указано некорректно")
+        await message.answer("Время указано некорректно", reply_markup=types.ReplyKeyboardRemove())
         return
     await state.set_state(CloseCrossingStates.date)
     await state.update_data(time=message.text)
-    await message.answer("Укажите дату закрытия переправы в формате ДД.ММ.ГГГГ")
+    await message.answer("Укажите дату закрытия переправы в формате ДД.ММ.ГГГГ", reply_markup=types.ReplyKeyboardRemove())
 
 
 @close_crossing_router.message(CloseCrossingStates.date)
@@ -68,7 +68,7 @@ async def close_crossing_message_date(message: types.Message, state: FSMContext)
     try:
         datetime.strptime(message.text, "%d.%m.%Y")
     except Exception:
-        await message.answer("Дата указана некорректно")
+        await message.answer("Дата указана некорректно", reply_markup=types.ReplyKeyboardRemove())
         return
     await state.set_state(CloseCrossingStates.reason)
     await state.update_data(date=message.text)
@@ -92,7 +92,7 @@ async def close_crossing_message_reason(message: types.Message, state: FSMContex
         message_template_id=message_templates[0].id
     )
     message_text = await message_template_service.get_formated_message(**data)
-    new_message = await message.answer(message_text)
+    new_message = await message.answer(message_text, reply_markup=types.ReplyKeyboardRemove())
     await state.update_data(message_id_to_send=new_message.message_id)
     await message.answer(
         "Подтвердите отправку сообщения", reply_markup=buttons.confirm_keyboard()

@@ -42,6 +42,7 @@ def ferry_count_keyboard():
 def confirm_keyboard():
     builder = InlineKeyboardBuilder()
     builder.button(text="Подтвердить", callback_data="confirm_yes")
+    builder.button(text="Отменить", callback_data="confirm_no")
     builder.adjust(1)
     keyboard = builder.as_markup()
     return keyboard

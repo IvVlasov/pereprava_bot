@@ -6,6 +6,7 @@ from bot.constants import ModeratorMenuButtons, UserMenuButtons
 from bot.handlers.filter import ModeratorFilter
 from bot.handlers.states import AppealStates
 from bot.models.appeal import Appeal
+from bot import buttons as user_buttons
 from bot.services.message_service import get_message_service
 from repository import AppealRepository
 from settings import get_settings
@@ -21,14 +22,15 @@ appeal_router = Router()
 )
 async def appeal_message(message: types.Message, state: FSMContext):
     app_messages = await get_message_service()
-    await message.answer(app_messages.appeal_message)
+    await message.answer(app_messages.appeal_message, reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(AppealStates.appeal)
 
 
 @appeal_router.message(AppealStates.appeal)
 async def appeal_message_handler(message: types.Message, state: FSMContext):
     app_messages = await get_message_service()
-    await message.answer(app_messages.appeal_message_success)
+    btn = await user_buttons.user_menu_keyboard(message)
+    await message.answer(app_messages.appeal_message_success, reply_markup=btn)
     await send_appeal_message(message)
     await state.clear()
 

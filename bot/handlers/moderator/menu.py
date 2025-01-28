@@ -4,10 +4,12 @@ from aiogram.fsm.context import FSMContext
 from bot.constants import ModeratorMenuButtons
 from bot.handlers.filter import ModeratorFilter
 from bot.handlers.moderator import buttons
+from bot import buttons as user_buttons
 from bot.handlers.moderator.states import SendMessageStates
 from repository import CrossingRepository, UserCrossingsRepository
 from bot.services.message_service import get_message_service
 from bot.app import bot
+
 
 menu_router = Router()
 
@@ -47,4 +49,15 @@ async def close_crossing_message_confirm(
         await bot.copy_message(user_id, callback.message.chat.id, data.get("message_id_to_send"))
     await callback.message.delete()
     await state.clear()
-    await callback.message.answer("Сообщение отправлено")
+    btn = await user_buttons.user_menu_keyboard(callback.message)
+    await callback.message.answer("Сообщение отправлено", reply_markup=btn)
+
+
+@menu_router.callback_query(F.data == "confirm_no")
+async def close_crossing_message_cancel(
+    callback: types.CallbackQuery, state: FSMContext
+):
+    await callback.message.delete()
+    await state.clear()
+    btn = await user_buttons.user_menu_keyboard(callback.message)
+    await callback.message.answer("Отправка сообщения отменена", reply_markup=btn)

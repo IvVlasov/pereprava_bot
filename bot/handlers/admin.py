@@ -41,6 +41,6 @@ async def get_settings(message: types.Message, state: FSMContext):
     parse_settings_excel = ExcelSettings()
     is_success = await parse_settings_excel.parse_and_save()
     if is_success:
-        await message.answer("Настройки успешно обновлены")
+        await message.answer("Настройки успешно обновлены", reply_markup=types.ReplyKeyboardRemove())
     else:
-        await message.answer("Произошла ошибка при обновлении настроек")
+        await message.answer("Произошла ошибка при обновлении настроек", reply_markup=types.ReplyKeyboardRemove())

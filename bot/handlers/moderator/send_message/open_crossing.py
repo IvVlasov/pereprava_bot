@@ -52,7 +52,8 @@ async def open_crossing_message_now(message: types.Message, state: FSMContext):
 )
 async def open_crossing_message_manual(message: types.Message, state: FSMContext):
     await state.set_state(OpenCrossingStates.time)
-    await message.answer("Укажите время открытия переправы в формате ЧЧ:ММ")
+    await message.answer("Укажите время открытия переправы в формате ЧЧ:ММ",
+                         reply_markup=types.ReplyKeyboardRemove())
 
 
 @open_crossing_router.message(OpenCrossingStates.time)
@@ -60,11 +61,12 @@ async def open_crossing_message_time(message: types.Message, state: FSMContext):
     try:
         datetime.strptime(message.text, "%H:%M")
     except Exception:
-        await message.answer("Время указано некорректно")
+        await message.answer("Время указано некорректно", reply_markup=types.ReplyKeyboardRemove())
         return
     await state.set_state(OpenCrossingStates.date)
     await state.update_data(time=message.text)
-    await message.answer("Укажите дату открытия переправы в формате ДД.ММ.ГГГГ")
+    await message.answer("Укажите дату открытия переправы в формате ДД.ММ.ГГГГ",
+                         reply_markup=types.ReplyKeyboardRemove())
 
 
 @open_crossing_router.message(OpenCrossingStates.date)
@@ -102,7 +104,7 @@ async def morning_ferry_count(callback: types.CallbackQuery, state: FSMContext):
         message_template_id=message_templates[0].id
     )
     message_text = await message_template_service.get_formated_message(**data)
-    new_message = await callback.message.answer(message_text)
+    new_message = await callback.message.answer(message_text, reply_markup=types.ReplyKeyboardRemove())
     await state.update_data(message_id_to_send=new_message.message_id)
     await callback.message.answer(
         "Подтвердите отправку сообщения", reply_markup=buttons.confirm_keyboard()

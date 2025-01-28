@@ -11,10 +11,6 @@ from repository import MessageTemplatesRepository
 limit_message_router = Router()
 
 
-MESSAGE_TEMPLATE = """Подтвердите: что дата и сообщение об открытии указано верно:\n\n
-**ШАБЛОННЫЙ ТЕКСТ СООБЩЕНИЯ С %ДАТОЙ% %ВРЕМЕНЕМ% и %ПРИЧИНА%**"""
-
-
 @limit_message_router.message(
     F.text == ModeratorMessageTypes.LIMIT_MESSAGE.value, SendMessageStates.crossing
 )
@@ -40,7 +36,7 @@ async def morning_ferry_count(callback: types.CallbackQuery, state: FSMContext):
     message_template_repository = MessageTemplatesRepository()
     message_templates = (
         await message_template_repository.get_messages_templates_by_type(
-            MessageTemplateType.OPENING
+            MessageTemplateType.LIMIT
         )
     )
     message_template_service = MessageTemplatesService(

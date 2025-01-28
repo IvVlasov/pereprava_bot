@@ -21,10 +21,6 @@ class UserCrossingsCamerasStates(StatesGroup):
     crossing_choice = State()
 
 
-class ModeratorCrossingsStates(StatesGroup):
-    crossing_choice = State()
-
-
 @user_router.message(ModeratorFilter(), F.text.startswith("/start"))
 async def start_moderator(message: types.Message, state: FSMContext):
     user_repository = UserRepository()
@@ -134,6 +130,6 @@ async def crossing_camera_handler(callback: types.CallbackQuery, state: FSMConte
     crossing_id = int(callback.data.split("_")[-1])
     crossing = await CrossingRepository().get_crossing_by_id(crossing_id)
     if crossing.camera_url:
-        await callback.message.answer(crossing.camera_url)
+        await callback.message.answer(crossing.camera_url, reply_markup=types.ReplyKeyboardRemove())
     else:
-        await callback.message.answer("У переправы нет камеры")
+        await callback.message.answer("У переправы нет камеры", reply_markup=types.ReplyKeyboardRemove())
