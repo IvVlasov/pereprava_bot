@@ -1,0 +1,13 @@
+[Unit]
+Description=Pereprava bot service
+After=network.target
+
+[Service]
+User=root
+Type=simple
+WorkingDirectory=/root/pereprava_bot
+ExecStart=/root/pereprava_bot/env/bin/python /root/pereprava_bot/main.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
